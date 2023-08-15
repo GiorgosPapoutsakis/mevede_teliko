@@ -52,8 +52,8 @@ class Swap_move:
                         cost_multiplier2 = len(route2.nodes_sequence)-node2_index_in_route
 
                         total_move_cost_differce = None
-                        origin_route_cost_difference = None
-                        target_route_cost_difference = None
+                        route1_cost_difference = None
+                        route2_cost_difference = None
 
                         if (route1 == route2) and (node1_index_in_route == node2_index_in_route - 1):
                             cost_removed_rt2, cost_added_rt2 = 0, 0
@@ -88,17 +88,17 @@ class Swap_move:
                             if is_last2 is False:
                                 cost_added_rt2 += (cost_multiplier2-1)*self.cost_matrix[s1.id][n2.id]
                             
-                        origin_route_cost_difference = cost_added_rt1 - cost_removed_rt1
-                        target_route_cost_difference = cost_added_rt2 - cost_removed_rt2
-                        total_move_cost_differce = origin_route_cost_difference + target_route_cost_difference
+                        route1_cost_difference = cost_added_rt1 - cost_removed_rt1
+                        route2_cost_difference = cost_added_rt2 - cost_removed_rt2
+                        total_move_cost_differce = route1_cost_difference + route2_cost_difference
 
                         if total_move_cost_differce < self.move_cost_difference:
                             self.route1_pos = rt1_index
                             self.route2_pos = rt2_index
                             self.selected_node1_pos = node1_index_in_route
                             self.selected_node2_pos = node2_index_in_route
-                            self.cost_change_route1 = origin_route_cost_difference
-                            self.cost_change_route2 = target_route_cost_difference
+                            self.cost_change_route1 = route1_cost_difference
+                            self.cost_change_route2 = route2_cost_difference
                             self.move_cost_difference = total_move_cost_differce
     
     def apply_swap_move(self):
@@ -108,13 +108,12 @@ class Swap_move:
         selected_node2 = route2.nodes_sequence[self.selected_node2_pos]
         route1.nodes_sequence[self.selected_node1_pos] = selected_node2
         route2.nodes_sequence[self.selected_node2_pos] = selected_node1
-
-        if route1 == route2:
-            route1.cumulative_cost += self.cost_change_route1
-        else:
-            route1.cumulative_cost += self.cost_change_route1
-            route2.cumulative_cost += self.cost_change_route2
+        
+        route1.cumulative_cost += self.cost_change_route1
+        route2.cumulative_cost += self.cost_change_route2
+        if route1 != route2:
             route1.load = route1.load - selected_node1.demand + selected_node2.demand
             route2.load = route2.load - selected_node2.demand + selected_node1.demand
-
         self.sol.cost += self.move_cost_difference
+
+#iterations: 13 33804.8477478061

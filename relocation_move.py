@@ -6,8 +6,8 @@ class Relocation_move:
 
         self.origin_rt_pos = None
         self.target_rt_pos = None
-        self.origin_node1_pos = None
-        self.target_node2_pos = None
+        self.selected_node1_pos = None
+        self.selected_node2_pos = None
         self.cost_change_origin_rt = None
         self.cost_change_target_rt = None
         self.move_cost_difference = 10**9    
@@ -15,8 +15,8 @@ class Relocation_move:
     def reset(self):
         self.origin_rt_pos = None
         self.target_rt_pos = None
-        self.origin_node1_pos = None
-        self.target_node2_pos = None
+        self.selected_node1_pos = None
+        self.selected_node2_pos = None
         self.cost_change_origin_rt = None
         self.cost_change_target_rt = None
         self.move_cost_difference = 10**9
@@ -27,34 +27,31 @@ class Relocation_move:
             time_so_far_in_origin_rt = 0
 
             for node1_index_in_origin_rt in range(1, len(origin_rt.nodes_sequence)):
-                #xreiazontai gia ton upologismo tou time_so_far
-                prev_node_rt1 = origin_rt.nodes_sequence[node1_index_in_origin_rt-1]
-                node_rt1 = origin_rt.nodes_sequence[node1_index_in_origin_rt]
-                time_so_far_in_origin_rt += self.cost_matrix[prev_node_rt1.id][node_rt1.id] + node_rt1.uploading_time
+                tmp_node1_rt1 = origin_rt.nodes_sequence[node1_index_in_origin_rt-1]
+                tmp_node2_rt1 = origin_rt.nodes_sequence[node1_index_in_origin_rt]
+                time_so_far_in_origin_rt += self.cost_matrix[tmp_node1_rt1.id][tmp_node2_rt1.id] + tmp_node2_rt1.uploading_time
                 
                 for rt2_index in range(len(self.sol.routes)):
                     target_rt = self.sol.routes[rt2_index]
                     time_so_far_in_target_rt = 0
-                    
-                    for node2_index_in_target_rt in range(1,len(target_rt.nodes_sequence)):
-                        #xreiazontai gia ton upologismo tou time_so_far
-                        prev_node_rt2 = target_rt.nodes_sequence[node2_index_in_target_rt-1]
-                        node_rt2 = target_rt.nodes_sequence[node2_index_in_target_rt]
-                        time_so_far_in_target_rt += self.cost_matrix[prev_node_rt2.id][node_rt2.id] + node_rt2.uploading_time
-                    
 
+                    for node2_index_in_target_rt in range(1,len(target_rt.nodes_sequence)):
+                        tmp_node1_rt2 = target_rt.nodes_sequence[node2_index_in_target_rt-1]
+                        tmp_node2_rt2 = target_rt.nodes_sequence[node2_index_in_target_rt]
+                        time_so_far_in_target_rt += self.cost_matrix[tmp_node1_rt2.id][tmp_node2_rt2.id] + tmp_node2_rt2.uploading_time
+                    
                         if origin_rt == target_rt and (node1_index_in_origin_rt==node2_index_in_target_rt or node1_index_in_origin_rt-1==node2_index_in_target_rt):
                             continue
 
-                        #Origin route Info
+                        #Nodes and multiplier for origin_route
                         is_last1 = (len(origin_rt.nodes_sequence)-node1_index_in_origin_rt-1) == 0
-                        p1 = origin_rt.nodes_sequence[node1_index_in_origin_rt - 1] #previous
-                        s1 = origin_rt.nodes_sequence[node1_index_in_origin_rt] #selected
+                        p1 = origin_rt.nodes_sequence[node1_index_in_origin_rt - 1]
+                        s1 = origin_rt.nodes_sequence[node1_index_in_origin_rt]
                         if is_last1 is False:
-                            n1 = origin_rt.nodes_sequence[node1_index_in_origin_rt + 1] #next
+                            n1 = origin_rt.nodes_sequence[node1_index_in_origin_rt + 1]
                         cost_multiplier1 = len(origin_rt.nodes_sequence) - node1_index_in_origin_rt
 
-                        #Target route info
+                        #Nodes and multiplier for target_route
                         is_last2 = (len(target_rt.nodes_sequence)-node2_index_in_target_rt-1) == 0
                         s2 = target_rt.nodes_sequence[node2_index_in_target_rt]
                         if is_last2 is False:
@@ -67,12 +64,13 @@ class Relocation_move:
 
                         if origin_rt == target_rt:                          
                             cost_added_rt2, cost_removed_rt2 = 0, 0
+
                             if node2_index_in_target_rt > node1_index_in_origin_rt:
                                 inclusive_time_from_s1_to_s2 = 0
                                 for i in range(node1_index_in_origin_rt +1, node2_index_in_target_rt):
-                                    node1 = origin_rt.nodes_sequence[i]
-                                    node2 = origin_rt.nodes_sequence[i+1]
-                                    inclusive_time_from_s1_to_s2 += self.cost_matrix[node1.id][node2.id] + node1.uploading_time
+                                    tmp_node1 = origin_rt.nodes_sequence[i]
+                                    tmp_node2 = origin_rt.nodes_sequence[i+1]
+                                    inclusive_time_from_s1_to_s2 += self.cost_matrix[tmp_node1.id][tmp_node2.id] + tmp_node1.uploading_time
 
                                 cost_removed_rt1 = cost_multiplier1 * self.cost_matrix[p1.id][s1.id]
                                 cost_removed_rt1 += (cost_multiplier1-1) * self.cost_matrix[s1.id][n1.id]
@@ -87,9 +85,9 @@ class Relocation_move:
                             else:
                                 inclusive_time_from_s2_to_s1 = 0
                                 for i in range(node2_index_in_target_rt +1, node1_index_in_origin_rt - 1):
-                                    node1 = origin_rt.nodes_sequence[i]
-                                    node2 = origin_rt.nodes_sequence[i+1]
-                                    inclusive_time_from_s2_to_s1 += self.cost_matrix[node1.id][node2.id] + node1.uploading_time
+                                    tmp_node1 = origin_rt.nodes_sequence[i]
+                                    tmp_node2 = origin_rt.nodes_sequence[i+1]
+                                    inclusive_time_from_s2_to_s1 += self.cost_matrix[tmp_node1.id][tmp_node2.id] + tmp_node1.uploading_time
                                 inclusive_time_from_s2_to_s1 += p1.uploading_time
                                                                 
                                 cost_removed_rt1 = cost_multiplier1 * self.cost_matrix[p1.id][s1.id]
@@ -126,13 +124,13 @@ class Relocation_move:
 
                         origin_route_cost_difference = cost_added_rt1 - cost_removed_rt1
                         target_route_cost_difference = cost_added_rt2 - cost_removed_rt2
-                        total_move_cost_differce = cost_added_rt1 + cost_added_rt2 - (cost_removed_rt1 + cost_removed_rt2)
+                        total_move_cost_differce = origin_route_cost_difference + target_route_cost_difference
 
                         if total_move_cost_differce < self.move_cost_difference:
                             self.origin_rt_pos = rt1_index
                             self.target_rt_pos = rt2_index
-                            self.origin_node_pos = node1_index_in_origin_rt
-                            self.target_node_pos = node2_index_in_target_rt
+                            self.selected_node1_pos = node1_index_in_origin_rt
+                            self.selected_node2_pos = node2_index_in_target_rt
                             self.cost_change_origin_rt = origin_route_cost_difference
                             self.cost_change_target_rt = target_route_cost_difference
                             self.move_cost_difference = total_move_cost_differce
@@ -140,22 +138,22 @@ class Relocation_move:
     def apply_relocation_move(self):
         origin_route = self.sol.routes[self.origin_rt_pos]
         target_route = self.sol.routes[self.target_rt_pos]
-        selected_node1 = origin_route.nodes_sequence[self.origin_node_pos]
+        selected_node1 = origin_route.nodes_sequence[self.selected_node1_pos]
 
         if origin_route == target_route:
-            del origin_route.nodes_sequence[self.origin_node_pos]
-            if (self.origin_node_pos < self.target_node_pos):
-                target_route.nodes_sequence.insert(self.target_node_pos, selected_node1)
+            del origin_route.nodes_sequence[self.selected_node1_pos]
+            if (self.selected_node1_pos < self.selected_node2_pos):
+                target_route.nodes_sequence.insert(self.selected_node2_pos, selected_node1)
             else:
-                target_route.nodes_sequence.insert(self.target_node_pos + 1, selected_node1) #den vrike gia seed=39, vrike gia seed=3, swsto me +1 gia origin_node_pos > target_node_pos
-
-            origin_route.cumulative_cost += self.move_cost_difference        
+                target_route.nodes_sequence.insert(self.selected_node2_pos + 1, selected_node1) #den vrike gia seed=39, vrike gia seed=3, swsto me +1 gia selected_node1_pos > selected_node2_pos      
         else:
-            del origin_route.nodes_sequence[self.origin_node_pos]
-            target_route.nodes_sequence.insert(self.target_node_pos + 1, selected_node1)
-            origin_route.cumulative_cost += self.cost_change_origin_rt
-            target_route.cumulative_cost += self.cost_change_target_rt
+            del origin_route.nodes_sequence[self.selected_node1_pos]
+            target_route.nodes_sequence.insert(self.selected_node2_pos + 1, selected_node1)
             origin_route.load -= selected_node1.demand
             target_route.load += selected_node1.demand
 
+        origin_route.cumulative_cost += self.cost_change_origin_rt
+        target_route.cumulative_cost += self.cost_change_target_rt
         self.sol.cost += self.move_cost_difference
+
+#iterations: 13 31924.448077515277

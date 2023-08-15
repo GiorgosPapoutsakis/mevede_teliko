@@ -1,3 +1,4 @@
+#iterations: 16 32234.708521766195
 class TwoOpt_move:
     def __init__(self, solution, matrix, capacity):
         self.sol = solution
@@ -29,6 +30,7 @@ class TwoOpt_move:
     def find_best_two_opt(self):
         for rt1_index in range(len(self.sol.routes)):
             origin_rt = self.sol.routes[rt1_index]
+
             for rt2_index in range(len(self.sol.routes)):
                 target_rt = self.sol.routes[rt2_index]
                 rt1_time_cost_so_far = 0
@@ -37,27 +39,26 @@ class TwoOpt_move:
                 
                 for node1_index_in_origin_rt in range(len(origin_rt.nodes_sequence)-1):
                     if node1_index_in_origin_rt != 0:
-                        node1 = origin_rt.nodes_sequence[node1_index_in_origin_rt - 1]
-                        node2 = origin_rt.nodes_sequence[node1_index_in_origin_rt]
-                        cost_from_1_to_2 = self.cost_matrix[node1.id][node2.id] + node2.uploading_time
-                        rt1_time_cost_so_far += cost_from_1_to_2
+                        tmp_node1_rt1 = origin_rt.nodes_sequence[node1_index_in_origin_rt - 1]
+                        tmp_node2_rt1 = origin_rt.nodes_sequence[node1_index_in_origin_rt]
+                        rt1_time_cost_so_far += self.cost_matrix[tmp_node1_rt1.id][tmp_node2_rt1.id] + tmp_node2_rt1.uploading_time
                         rt1_calc_cost_so_far += rt1_time_cost_so_far
-                        rt1_load_so_far += node2.demand
-
-                    rt2_time_cost_so_far = 0
-                    rt2_calc_cost_so_far = 0
-                    rt2_load_so_far = 0                                       
+                        rt1_load_so_far += tmp_node2_rt1.demand
+                                      
                     start_node2_index = 0
                     if rt1_index == rt2_index:
                         start_node2_index = node1_index_in_origin_rt + 2
+                    rt2_time_cost_so_far = 0
+                    rt2_calc_cost_so_far = 0
+                    rt2_load_so_far = 0
+
                     for node2_index_in_target_rt in range(start_node2_index, len(target_rt.nodes_sequence)-1):
                         if node2_index_in_target_rt != 0:
-                            node11 = target_rt.nodes_sequence[node2_index_in_target_rt - 1]
-                            node22 = target_rt.nodes_sequence[node2_index_in_target_rt]
-                            cost_from_11_to_22 = self.cost_matrix[node11.id][node22.id] + node22.uploading_time
-                            rt2_time_cost_so_far += cost_from_11_to_22
+                            tmp_node1_rt2 = target_rt.nodes_sequence[node2_index_in_target_rt - 1]
+                            tmp_node2_rt2 = target_rt.nodes_sequence[node2_index_in_target_rt]
+                            rt2_time_cost_so_far += self.cost_matrix[tmp_node1_rt2.id][tmp_node2_rt2.id] + tmp_node2_rt2.uploading_time
                             rt2_calc_cost_so_far += rt2_time_cost_so_far
-                            rt2_load_so_far += node22.demand
+                            rt2_load_so_far += tmp_node2_rt2.demand
 
 
                         s1 = origin_rt.nodes_sequence[node1_index_in_origin_rt]
@@ -78,43 +79,33 @@ class TwoOpt_move:
                             cost_removed_rt1 = (cost_multiplier1-1) * self.cost_matrix[s1.id][n1.id] + (cost_multiplier2-1) * self.cost_matrix[s2.id][n2.id]
                             cost_added_rt1 = (cost_multiplier1-1) * self.cost_matrix[s1.id][s2.id] + (cost_multiplier2-1) * self.cost_matrix[n1.id][n2.id]
 
-                            minus_multiplier = 1
+                            #Calculate route cost: from n1 to s1 to remove
+                            multiplier_decreaser = 1
                             for i in range(node1_index_in_origin_rt + 1, node2_index_in_target_rt):
-                                node1 = origin_rt.nodes_sequence[i]
-                                node2 = origin_rt.nodes_sequence[i+1]
-                                cost_removed_rt1 += (cost_multiplier1-minus_multiplier) * self.cost_matrix[node1.id][node2.id]
-                                minus_multiplier += 1
+                                tmp_node1 = origin_rt.nodes_sequence[i]
+                                tmp_node2 = origin_rt.nodes_sequence[i+1]
+                                cost_removed_rt1 += (cost_multiplier1-multiplier_decreaser) * self.cost_matrix[tmp_node1.id][tmp_node2.id]
+                                multiplier_decreaser += 1
 
-                            adder_multiplier = cost_multiplier1 - 1
+                            #Calculate REVERSED route cost: from n1 to s1 to add
+                            multiplier_increaser = cost_multiplier1 - 1
                             for i in range(node2_index_in_target_rt, node1_index_in_origin_rt + 1, -1):
-                                node1 = origin_rt.nodes_sequence[i]
-                                node2 = origin_rt.nodes_sequence[i-1]
-                                cost_added_rt1 += (adder_multiplier) * self.cost_matrix[node1.id][node2.id]
-                                adder_multiplier -= 1
-                        else:
-                            # print("CHECK0",origin_rt.cumulative_cost, rt1_calc_cost_so_far, origin_rt.cumulative_cost-rt1_calc_cost_so_far)
-                            # print("CHECK0.1",target_rt.cumulative_cost, rt2_calc_cost_so_far, target_rt.cumulative_cost-rt2_calc_cost_so_far)
-                            
+                                tmp_node1 = origin_rt.nodes_sequence[i]
+                                tmp_node2 = origin_rt.nodes_sequence[i-1]
+                                cost_added_rt1 += multiplier_increaser * self.cost_matrix[tmp_node1.id][tmp_node2.id]
+                                multiplier_increaser -= 1
+                        
+                        else:                            
                             origin_rt_load_second_segment = origin_rt.load - rt1_load_so_far
                             target_rt_load_second_segment = target_rt.load - rt2_load_so_far
                             rt1_new_load = rt1_load_so_far + target_rt_load_second_segment
                             rt2_new_load = rt2_load_so_far + origin_rt_load_second_segment
-                            #print("loads1", origin_rt.load, rt1_load_so_far, origin_rt_load_second_segment)
-                            #print("loads2", target_rt.load, rt2_load_so_far, target_rt_load_second_segment)
                             if rt1_new_load > self.capacity:
                                 continue
                             if rt2_new_load > self.capacity:
                                 continue
                             
-
-                            #print("TEST IF CORRECT LOAD, myLoad, functionLoad", rt2_load_so_far, self.calculate_loadSoFar_until_nodeIndex_for_route(target_rt,node2_index_in_target_rt) )
-                            #rt1_load_so_far CORRECT
-                            #rt2_load_so_far CORRECT
-
-                            #print("TEST IF CORRECT TIME COST, myCost, functionCost", rt2_time_cost_so_far, self.calculate_timeCostSoFar_until_nodeIndex_for_route(target_rt,node2_index_in_target_rt) )
-                            #rt1_time_cost_so_far CORRECT
-                            #rt2_time_cost_so_far CORRECT
-
+                            #Calculate route1 cost: second_segment
                             origin_rt_length_second_segment = 1
                             time_cost1 = 0
                             origin_rt_calc_cost_second_segment = 0
@@ -125,6 +116,7 @@ class TwoOpt_move:
                                 origin_rt_calc_cost_second_segment += time_cost1
                                 origin_rt_length_second_segment += 1
 
+                            #Calculate route2 cost: second_segment
                             target_rt_length_second_segment = 1                            
                             time_cost2 = 0
                             target_rt_calc_cost_second_segment = 0 
@@ -134,33 +126,19 @@ class TwoOpt_move:
                                 time_cost2 += self.cost_matrix[temp_node11.id][temp_node22.id] + temp_node22.uploading_time
                                 target_rt_calc_cost_second_segment += time_cost2
                                 target_rt_length_second_segment += 1
-
-                            #print("TEST IF CORRECT 2nd_segment_cCost, myCost, functionCost", target_rt_calc_cost_second_segment, self.calculate_cumulativeCost_from_nodeIndex_until_end_of_route(target_rt, node2_index_in_target_rt + 1))
-                            #rt1_2nd_segment_cCost CORRECT
-                            #rt2_2nd_segment_cCost CORRECT
-
-                            #route1 + route2_secondSegment                                                                                    
+                                                                                    
                             cost_removed_rt1 = origin_rt_calc_cost_second_segment
                             cost_removed_rt1 += (cost_multiplier1 - 1) * (self.cost_matrix[s1.id][n1.id] + n1.uploading_time)
-
                             cost_added_rt1 = (cost_multiplier2 - 1) * (self.cost_matrix[s1.id][n2.id] + n2.uploading_time)
-                            cost_added_rt1 += target_rt_calc_cost_second_segment
-
-                                                        
+                            cost_added_rt1 += target_rt_calc_cost_second_segment                                                        
                             changed_rt1 = (cost_multiplier2-cost_multiplier1) * rt1_time_cost_so_far
-                            changed_rt2 = (cost_multiplier1 - cost_multiplier2) * rt2_time_cost_so_far
 
-                            #route2 + route1_secondSegment
                             cost_removed_rt2 = target_rt_calc_cost_second_segment
                             cost_removed_rt2 += (cost_multiplier2 - 1) * (self.cost_matrix[s2.id][n2.id] + n2.uploading_time)
-
                             cost_added_rt2 = (cost_multiplier1 - 1) * (self.cost_matrix[s2.id][n1.id] + n1.uploading_time)
                             cost_added_rt2 += origin_rt_calc_cost_second_segment
-
-                                                       
-                            #print("CHECK1",cost_added_rt1, cost_added_rt2, cost_removed_rt1, cost_removed_rt2, cost_added_rt1+cost_added_rt2-(cost_removed_rt1+cost_removed_rt2))
-                            #print("CHECK2", cost_added_rt1 + cost_added_rt2 - (cost_removed_rt1 + cost_removed_rt2) )
-
+                            changed_rt2 = (cost_multiplier1 - cost_multiplier2) * rt2_time_cost_so_far
+                                                                                   
                         cost_change_origin_rt = cost_added_rt1 - cost_removed_rt1 + changed_rt1
                         cost_change_target_rt = cost_added_rt2 - cost_removed_rt2 + changed_rt2
                         total_move_cost_differce = cost_added_rt1 + cost_added_rt2 - (cost_removed_rt1 + cost_removed_rt2) + changed_rt1 + changed_rt2
@@ -183,10 +161,7 @@ class TwoOpt_move:
         if origin_route == target_route:
             reversed_segment = reversed(origin_route.nodes_sequence[self.origin_node_pos + 1: self.target_node_pos + 1])
             origin_route.nodes_sequence[self.origin_node_pos + 1 : self.target_node_pos + 1] = reversed_segment
-            origin_route.cumulative_cost += self.cost_change_origin_rt
         else:
-            #self.calculate_route_details("origin_route_before",origin_route, self.origin_rt_pos + 1 )
-            #self.calculate_route_details("target_route_before",target_route, self.target_rt_pos + 1)
             relocatedSegmentOfRt1 = origin_route.nodes_sequence[self.origin_node_pos + 1 :]
             relocatedSegmentOfRt2 = target_route.nodes_sequence[self.target_node_pos + 1 :]
             del origin_route.nodes_sequence[self.origin_node_pos + 1 :]
@@ -195,12 +170,9 @@ class TwoOpt_move:
             target_route.nodes_sequence.extend(relocatedSegmentOfRt1)
             origin_route.load = self.origin_rt_new_load
             target_route.load = self.target_rt_new_load
-            origin_route.cumulative_cost += self.cost_change_origin_rt
-            target_route.cumulative_cost += self.cost_change_target_rt
-            #self.calculate_route_details("origin_route_after",origin_route, self.origin_rt_pos + 1)
-            #self.calculate_route_details("target_route_after",target_route, self.target_rt_pos + 1)
- 
-
+            
+        origin_route.cumulative_cost += self.cost_change_origin_rt
+        target_route.cumulative_cost += self.cost_change_target_rt 
         self.sol.cost += self.move_cost_difference
 
     def calculate_route_details(self,message,route, route_pos):
@@ -221,31 +193,4 @@ class TwoOpt_move:
         print()
         print("ROUTEDETAILS:",route_pos, message,"calcCost, nodes_in_route, numberOfNodes", calccost, nodes_in_route, numberOfNodes)
         print()
-
-    def calculate_timeCostSoFar_until_nodeIndex_for_route(self, route, node_index_in_route):
-        timecost = 0
-        for i in range(0, node_index_in_route):
-            node1 = route.nodes_sequence[i]
-            node2 = route.nodes_sequence[i+1]
-            dist_cost = self.cost_matrix[node1.id][node2.id] + node2.uploading_time
-            timecost += dist_cost
-        return timecost
     
-    def calculate_loadSoFar_until_nodeIndex_for_route(self, route, node_index_in_route):
-        load = 0
-        for i in range(0, node_index_in_route):
-            node1 = route.nodes_sequence[i]
-            node2 = route.nodes_sequence[i+1]
-            load += node2.demand
-        return load
-    
-    def calculate_cumulativeCost_from_nodeIndex_until_end_of_route(self, route, node_index_in_route):
-        tCost = 0
-        cCost = 0
-        for i in range(node_index_in_route, len(route.nodes_sequence)-1):
-            node1 = route.nodes_sequence[i]
-            node2 = route.nodes_sequence[i+1]
-            dist_cost = self.cost_matrix[node1.id][node2.id] + node2.uploading_time
-            tCost += dist_cost
-            cCost += tCost
-        return cCost

@@ -12,7 +12,7 @@ class Improver:
         self.capacity = model.capacity
 
     def improve(self):
-        self.local_search(0)
+        self.local_search(2)
         #self.NVD()
         print("IMPROVED")
         self.sol.report_solution()
@@ -60,6 +60,7 @@ class Improver:
             print("iterations:",local_search_iterations, self.sol.cost) #extra mia epanalipsi gia na vgei
 
             #TESTING
+
             # if self.TestSolution() > 0:
             #     print("PROBLEM")
             #     termination_condition = True
