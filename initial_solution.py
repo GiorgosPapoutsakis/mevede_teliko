@@ -7,7 +7,7 @@ class CustomerInsertion(object):
         self.route = None
         self.cost = 10 ** 9
     
-class Solver:
+class Constructor:
     def __init__(self,model):
         self.allNodes = model.allNodes
         self.warehouse = model.allNodes[0]
@@ -16,9 +16,9 @@ class Solver:
         self.max_routes = model.maxRoutes
         self.initial_solution = None
 
-    def solve(self):
+    def construct_solution(self):
         self.apply_nearest_neighbor_method()
-        print("INITIAL")
+        print("INITIAL SOLUTION")
         self.initial_solution.report_solution()
         #SolDrawer.draw('Inital_Sol', self.initial_solution, self.allNodes)
         return self.initial_solution
@@ -69,11 +69,12 @@ class Solver:
         route_to_insert.nodes_sequence.append(customer_to_insert)
         node_before_inserted = route_to_insert.nodes_sequence[-2]
 
-        distance_time_cost_added = self.cost_matrix[node_before_inserted.id][customer_to_insert.id]
+        distance_time_cost_added = self.cost_matrix[node_before_inserted.id][customer_to_insert.id] + customer_to_insert.uploading_time
 
         route_to_insert.initial_time_cost += distance_time_cost_added
-        route_to_insert.initial_time_cost += customer_to_insert.uploading_time
         route_to_insert.cumulative_cost += route_to_insert.initial_time_cost
         route_to_insert.load += customer_to_insert.demand
         customer_to_insert.isRouted = True
-        self.initial_solution.cost += route_to_insert.initial_time_cost        
+        self.initial_solution.cost += route_to_insert.initial_time_cost
+
+#34484.054385905954

@@ -11,69 +11,18 @@ class Improver:
         self.cost_matrix = model.matrix
         self.capacity = model.capacity
 
-    def improve(self):
-        self.local_search(2)
-        #self.NVD()
-        print("IMPROVED")
+    def improve_solution(self):
+        #self.local_search(2)
+        self.nvd()
+        print("FINAL SOLUTION")
         self.sol.report_solution()
-
-    def local_search(self, operator):
-        termination_condition = False
-        local_search_iterations = 0
-        
-        sm_obj = Swap_move(self.sol, self.cost_matrix, self.capacity)
-        rm_obj = Relocation_move(self.sol, self.cost_matrix, self.capacity)
-        tOpt_obj = TwoOpt_move(self.sol, self.cost_matrix, self.capacity)
-
-        while termination_condition is False:
-            rm_obj.reset()
-            sm_obj.reset()
-            tOpt_obj.reset()
-            #SolDrawer.draw(local_search_iterations, self.sol, self.allNodes)
-            
-            #Relocations
-            if operator == 0:
-                rm_obj.find_best_relocation_move()
-                if rm_obj.origin_rt_pos is not None:
-                    if rm_obj.move_cost_difference <0:
-                        rm_obj.apply_relocation_move()
-                    else:
-                        termination_condition = True
-            #Swaps
-            elif operator == 1:
-                sm_obj.find_best_swap_move()
-                if sm_obj.route1_pos is not None:
-                    if sm_obj.move_cost_difference < 0:
-                        sm_obj.apply_swap_move()
-                    else:
-                        termination_condition = True
-            #Two_Opt
-            elif operator == 2:
-                tOpt_obj.find_best_two_opt()
-                if tOpt_obj.origin_rt_pos is not None:
-                    if tOpt_obj.move_cost_difference < 0:
-                        tOpt_obj.apply_two_opt_move()
-                    else:
-                        termination_condition = True
-
-            local_search_iterations += 1
-            print("iterations:",local_search_iterations, self.sol.cost) #extra mia epanalipsi gia na vgei
-
-            #TESTING
-
-            # if self.TestSolution() > 0:
-            #     print("PROBLEM")
-            #     termination_condition = True
-            # else:
-            #     print("Test passed")
-
-
-    def NVD(self):
+    
+    def nvd(self):
         nvd_iterations = 0
         operator = 0
         max_operator = 2
         draw = False
-        report_each_iteration = False
+        report_each_iteration = True
         
         sm_obj = Swap_move(self.sol, self.cost_matrix, self.capacity)
         rm_obj = Relocation_move(self.sol, self.cost_matrix, self.capacity)
@@ -102,7 +51,7 @@ class Improver:
             #Swaps
             elif operator == 1:
                 sm_obj.find_best_swap_move()
-                if sm_obj.origin_rt_pos is not None and sm_obj.move_cost_difference < 0:
+                if sm_obj.route1_pos is not None and sm_obj.move_cost_difference < 0:
                     sm_obj.apply_swap_move()
 
                     if report_each_iteration:
@@ -117,7 +66,7 @@ class Improver:
             #Two_Opt
             elif operator == 2:
                 tOpt_obj.find_best_two_opt()
-                if tOpt_obj.origin_rt_pos is not None and tOpt_obj.move_cost_difference < 0:
+                if tOpt_obj.route1_pos is not None and tOpt_obj.move_cost_difference < 0:
                     tOpt_obj.apply_two_opt_move()
 
                     if report_each_iteration:
@@ -137,6 +86,65 @@ class Improver:
             # else:
             #     print("Test passed")
 
+
+    def local_search(self, operator):
+        termination_condition = False
+        local_search_iterations = 0
+        report_each_iteration = False
+        
+        sm_obj = Swap_move(self.sol, self.cost_matrix, self.capacity)
+        rm_obj = Relocation_move(self.sol, self.cost_matrix, self.capacity)
+        tOpt_obj = TwoOpt_move(self.sol, self.cost_matrix, self.capacity)
+
+        while termination_condition is False:
+            rm_obj.reset()
+            sm_obj.reset()
+            tOpt_obj.reset()
+            #SolDrawer.draw(local_search_iterations, self.sol, self.allNodes)
+            
+            #Relocations
+            if operator == 0:
+                rm_obj.find_best_relocation_move()
+                if rm_obj.origin_rt_pos is not None:
+                    if rm_obj.move_cost_difference <0:
+                        rm_obj.apply_relocation_move()
+                        
+                        if report_each_iteration:
+                            print("iteration:",local_search_iterations, self.sol.cost)
+                    else:
+                        termination_condition = True
+            #Swaps
+            elif operator == 1:
+                sm_obj.find_best_swap_move()
+                if sm_obj.route1_pos is not None:
+                    if sm_obj.move_cost_difference < 0:
+                        sm_obj.apply_swap_move()
+                        
+                        if report_each_iteration:
+                            print("iteration:",local_search_iterations, self.sol.cost)
+                    else:
+                        termination_condition = True
+            #Two_Opt
+            elif operator == 2:
+                tOpt_obj.find_best_two_opt()
+                if tOpt_obj.route1_pos is not None:
+                    if tOpt_obj.move_cost_difference < 0:
+                        tOpt_obj.apply_two_opt_move()
+                        
+                        if report_each_iteration:
+                            print("iteration:",local_search_iterations, self.sol.cost)
+                    else:
+                        termination_condition = True
+            local_search_iterations += 1
+
+
+            #TESTING
+
+            # if self.TestSolution() > 0:
+            #     print("PROBLEM")
+            #     termination_condition = True
+            # else:
+            #     print("Test passed")
        
 ################
     def TestSolution(self):

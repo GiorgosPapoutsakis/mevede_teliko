@@ -4,7 +4,7 @@ from improve_solution import *
 
 vrpModel = Model()
 vrpModel.build_model()
-s = Solver(vrpModel)
-initial_solution = s.solve()
-imp = Improver(initial_solution, vrpModel)
-imp.improve()
+constr = Constructor(vrpModel)
+initial_solution = constr.construct_solution()
+impr = Improver(initial_solution, vrpModel)
+impr.improve_solution()
