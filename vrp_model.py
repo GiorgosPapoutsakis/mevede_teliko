@@ -32,7 +32,7 @@ class Model:
                 dist = math.sqrt(math.pow(a.x - b.x, 2) + math.pow(a.y - b.y, 2))
                 self.matrix[i][j] = dist
 
-        # NODES INFO
+        # NODES INFO for Instance.txt(sol_checker)
         # for node in self.allNodes:
         #     print(f"{node.id},{node.x},{node.y},{node.demand},{node.uploading_time}")
 
@@ -59,8 +59,8 @@ class Solution():
         self.cost = 0.0
         self.routes = []
 
-    def report_solution(self):
-            print("***")
+    def report_solution(self, message=""):
+            print(message)
             print("Cost:")
             print(self.cost)
             print("Routes:")
@@ -74,3 +74,4 @@ class Solution():
                         print(rt.nodes_sequence[j].id, end='')
                         #print(" ",rt.cumulative_cost, end="")
                         print()
+            print()

@@ -14,15 +14,14 @@ class Improver:
     def improve_solution(self):
         #self.local_search(2)
         self.nvd()
-        print("FINAL SOLUTION")
-        self.sol.report_solution()
+        self.sol.report_solution("FINAL SOLUTION")
     
     def nvd(self):
         nvd_iterations = 0
         operator = 0
         max_operator = 2
         draw = False
-        report_each_iteration = True
+        report_each_iteration = False
         
         sm_obj = Swap_move(self.sol, self.cost_matrix, self.capacity)
         rm_obj = Relocation_move(self.sol, self.cost_matrix, self.capacity)
@@ -85,6 +84,9 @@ class Improver:
             #     operator = 3
             # else:
             #     print("Test passed")
+
+        print("NVD-iterations:", nvd_iterations - 1, ",Final cost:", self.sol.cost)
+        #SolDrawer.draw("Final_Solution", self.sol, self.allNodes)
 
 
     def local_search(self, operator):

@@ -1,5 +1,5 @@
 from vrp_model import *
-from initial_solution import *
+from construct_solution import *
 from improve_solution import *
 
 vrpModel = Model()
