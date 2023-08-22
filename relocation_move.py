@@ -145,7 +145,7 @@ class Relocation_move:
             if (self.selected_node1_pos < self.selected_node2_pos):
                 target_route.nodes_sequence.insert(self.selected_node2_pos, selected_node1)
             else:
-                target_route.nodes_sequence.insert(self.selected_node2_pos + 1, selected_node1) #den vrike gia seed=39, vrike gia seed=3, swsto me +1 gia selected_node1_pos > selected_node2_pos      
+                target_route.nodes_sequence.insert(self.selected_node2_pos + 1, selected_node1)
         else:
             del origin_route.nodes_sequence[self.selected_node1_pos]
             target_route.nodes_sequence.insert(self.selected_node2_pos + 1, selected_node1)
@@ -155,5 +155,3 @@ class Relocation_move:
         origin_route.cumulative_cost += self.cost_change_origin_rt
         target_route.cumulative_cost += self.cost_change_target_rt
         self.sol.cost += self.move_cost_difference
-
-#iterations: 13 31924.448077515277

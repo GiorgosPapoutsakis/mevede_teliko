@@ -72,6 +72,6 @@ class Solution():
                         print(rt.nodes_sequence[j].id, end=',')
                     else:
                         print(rt.nodes_sequence[j].id, end='')
-                        #print(" ",rt.cumulative_cost, end="")
+                        print(" ",rt.cumulative_cost, end="")
                         print()
             print()

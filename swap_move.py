@@ -37,11 +37,11 @@ class Swap_move:
 
                         #Nodes and multiplier for route1
                         is_last1 = (len(route1.nodes_sequence)-node1_index_in_route-1) == 0
-                        p1 = route1.nodes_sequence[node1_index_in_route - 1] #previous
-                        s1 = route1.nodes_sequence[node1_index_in_route] #selected
+                        p1 = route1.nodes_sequence[node1_index_in_route - 1]
+                        s1 = route1.nodes_sequence[node1_index_in_route]
                         if is_last1 is False:
-                            n1 = route1.nodes_sequence[node1_index_in_route + 1] #next
-                        cost_multiplier1 = len(route1.nodes_sequence)-node1_index_in_route #fores pou prostithetai to cost[ dist(previous->selected)+selected.uploading_time ] sto cumulative_cost gia to sugkekrimeno route. Ean o selected OXI TELEUTAIOS: +cost[ dist(selcted->next)]*(multiplier-1)
+                            n1 = route1.nodes_sequence[node1_index_in_route + 1]
+                        cost_multiplier1 = len(route1.nodes_sequence)-node1_index_in_route
 
                         #Nodes and multiplier for route2
                         is_last2 = (len(route2.nodes_sequence)-node2_index_in_route-1) == 0
@@ -115,5 +115,3 @@ class Swap_move:
             route1.load = route1.load - selected_node1.demand + selected_node2.demand
             route2.load = route2.load - selected_node2.demand + selected_node1.demand
         self.sol.cost += self.move_cost_difference
-
-#iterations: 13 33804.8477478061

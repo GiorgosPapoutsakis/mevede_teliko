@@ -33,7 +33,6 @@ class TwoOpt_move:
             for rt2_index in range(len(self.sol.routes)):
                 route2 = self.sol.routes[rt2_index]
                 rt1_time_cost_so_far = 0
-                rt1_calc_cost_so_far = 0
                 rt1_load_so_far = 0              
                 
                 for node1_index_in_route1 in range(len(route1.nodes_sequence)-1):
@@ -41,14 +40,12 @@ class TwoOpt_move:
                         tmp_node1_rt1 = route1.nodes_sequence[node1_index_in_route1 - 1]
                         tmp_node2_rt1 = route1.nodes_sequence[node1_index_in_route1]
                         rt1_time_cost_so_far += self.cost_matrix[tmp_node1_rt1.id][tmp_node2_rt1.id] + tmp_node2_rt1.uploading_time
-                        rt1_calc_cost_so_far += rt1_time_cost_so_far
                         rt1_load_so_far += tmp_node2_rt1.demand
                                       
                     start_node2_index = 0
                     if rt1_index == rt2_index:
                         start_node2_index = node1_index_in_route1 + 2
                     rt2_time_cost_so_far = 0
-                    rt2_calc_cost_so_far = 0
                     rt2_load_so_far = 0
 
                     for node2_index_in_route2 in range(start_node2_index, len(route2.nodes_sequence)-1):
@@ -56,7 +53,6 @@ class TwoOpt_move:
                             tmp_node1_rt2 = route2.nodes_sequence[node2_index_in_route2 - 1]
                             tmp_node2_rt2 = route2.nodes_sequence[node2_index_in_route2]
                             rt2_time_cost_so_far += self.cost_matrix[tmp_node1_rt2.id][tmp_node2_rt2.id] + tmp_node2_rt2.uploading_time
-                            rt2_calc_cost_so_far += rt2_time_cost_so_far
                             rt2_load_so_far += tmp_node2_rt2.demand
 
                         #Nodes and multiplier for route1
@@ -174,24 +170,3 @@ class TwoOpt_move:
         route1.cumulative_cost += self.cost_change_route1
         route2.cumulative_cost += self.cost_change_route2 
         self.sol.cost += self.move_cost_difference
-
-    def calculate_route_details(self,message,route, route_pos):
-        load = 0
-        timecost = 0
-        calccost = 0
-        numberOfNodes = 0
-        nodes_in_route = [0]
-        for i in range(0, len(route.nodes_sequence)-1):
-            node1 = route.nodes_sequence[i]
-            node2 = route.nodes_sequence[i+1]
-            dist_cost = self.cost_matrix[node1.id][node2.id] + node2.uploading_time
-            timecost += dist_cost
-            calccost += timecost
-            load += node2.demand
-            numberOfNodes += 1
-            nodes_in_route.append(node2.id)
-        print()
-        print("ROUTEDETAILS:",route_pos, message,"calcCost, nodes_in_route, numberOfNodes", calccost, nodes_in_route, numberOfNodes)
-        print()
-    
-#iterations: 16 32234.708521766195
