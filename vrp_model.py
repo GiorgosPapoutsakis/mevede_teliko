@@ -43,7 +43,6 @@ class Node:
         self.y = yy
         self.demand = dem
         self.uploading_time = time
-        self.isRouted = False
 
 class Route:
     def __init__(self,warehouse,capacity):
@@ -72,6 +71,6 @@ class Solution():
                         print(rt.nodes_sequence[j].id, end=',')
                     else:
                         print(rt.nodes_sequence[j].id, end='')
-                        print(" ",rt.cumulative_cost, end="")
+                        #print(" ",rt.cumulative_cost, end="")
                         print()
             print()

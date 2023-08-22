@@ -39,19 +39,19 @@ class Constructor:
 
                 #calculate distance cost if added to this route
                 previous_cust = route_to_insert.nodes_sequence[-1]
-                canditate_cost = self.cost_matrix[previous_cust.id][customer_to_insert.id]
+                cost_difference = self.cost_matrix[previous_cust.id][customer_to_insert.id]
 
-                if canditate_cost < bestInsertionObject.cost:
+                if cost_difference < bestInsertionObject.cost:
                     bestInsertionObject.customer = customer_to_insert
                     bestInsertionObject.route = route_to_insert
-                    bestInsertionObject.cost = canditate_cost
+                    bestInsertionObject.cost = cost_difference
 
             if bestInsertionObject.route is None:
                 print("model is impossible")
                 exit()
 
             self.apply_best_customer_insertion(bestInsertionObject)
-        
+
     def apply_best_customer_insertion(self,bestInsertionObject):
         customer_to_insert = bestInsertionObject.customer
         route_to_insert = bestInsertionObject.route
@@ -63,5 +63,4 @@ class Constructor:
         route_to_insert.initial_time_cost += distance_time_cost_added
         route_to_insert.cumulative_cost += route_to_insert.initial_time_cost
         route_to_insert.load += customer_to_insert.demand
-        customer_to_insert.isRouted = True
         self.initial_solution.cost += route_to_insert.initial_time_cost
